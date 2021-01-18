@@ -20,6 +20,9 @@ class HotelConsumerServiceTest {
 	private String inventoryServiceUrl;
 
 	@Test
+	void getInventoryDetails_ShouldReturn() {
+		
+	}
 	
 
 }
