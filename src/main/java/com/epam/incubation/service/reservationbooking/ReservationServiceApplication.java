@@ -1,17 +1,16 @@
 package com.epam.incubation.service.reservationbooking;
 
-import java.text.ParseException;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
-//@EnableEurekaClient
+@EnableFeignClients
+@EnableDiscoveryClient
 public class ReservationServiceApplication {
 
-	public static void main(String[] args) throws ParseException, JsonProcessingException {
+	public static void main(String[] args) {
 		SpringApplication.run(ReservationServiceApplication.class, args);
 	}
 

@@ -38,7 +38,7 @@ public class ReservationBookingResourceImpl implements ReservationBookingResourc
 		return reservationService.bookReservation(reservation);
 }
 
-	@DeleteMapping("/reservationservice")
+	@DeleteMapping("/reservationservice/{id}")
 	@ApiOperation(value="Cancle Reservation by Id")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved"),
 			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found") })

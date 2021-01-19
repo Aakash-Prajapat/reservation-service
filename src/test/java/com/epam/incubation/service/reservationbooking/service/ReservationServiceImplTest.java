@@ -19,7 +19,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
+import com.epam.incubation.service.reservationbooking.constant.ReservationServiceConstant;
 import com.epam.incubation.service.reservationbooking.datamodel.GuestDetailsRequestModel;
 import com.epam.incubation.service.reservationbooking.datamodel.InventoryDetailsDataModel;
 import com.epam.incubation.service.reservationbooking.datamodel.PaymentDetailsDataModel;
@@ -32,7 +35,11 @@ import com.epam.incubation.service.reservationbooking.entities.PaymentDetails;
 import com.epam.incubation.service.reservationbooking.entities.Reservation;
 import com.epam.incubation.service.reservationbooking.entities.ReservationLineDetails;
 import com.epam.incubation.service.reservationbooking.exception.RecordNotFoundException;
+import com.epam.incubation.service.reservationbooking.facade.HotelInfoServiceProxy;
 import com.epam.incubation.service.reservationbooking.repository.ReservationRepository;
+import com.epam.incubation.service.reservationbooking.requestmodel.InventoryRequestModel;
+import com.epam.incubation.service.reservationbooking.responsemodel.InventoryDetailsResponseModel;
+import com.epam.incubation.service.reservationbooking.responsemodel.InventoryResponseModel;
 
 @ExtendWith(MockitoExtension.class)
 class ReservationServiceImplTest {
@@ -42,6 +49,9 @@ class ReservationServiceImplTest {
 
 	@InjectMocks
 	private ReservationServiceImpl reservationService;
+	
+	@Mock
+	HotelInfoServiceProxy hotelInfoServiceProxy;
 
 	@Test
 	void getReservation_ShouldReturnReservation() throws ParseException {
@@ -135,10 +145,63 @@ class ReservationServiceImplTest {
 				Arrays.asList(requestInventoryDetailsDataModel1, requestInventoryDetailsDataModel2));
 		requestReservationDataModel.setReservationLineDetails(Arrays.asList(requestReservationLineDetailsDataModel));
 
+		//Inventory request model
+		InventoryRequestModel inventoryRequestModel = new InventoryRequestModel();
+		inventoryRequestModel.setCheckInDate(myFormat.parse("01-02-2021"));
+		inventoryRequestModel.setCheckOutDate(myFormat.parse("02-02-2021"));
+		inventoryRequestModel.setHotelId(1);
+		inventoryRequestModel.setRoomId(1);
+
+		InventoryDetailsResponseModel response = new InventoryDetailsResponseModel();
+		InventoryResponseModel inventoryResponseModel1 = new InventoryResponseModel();
+		inventoryResponseModel1.setHotelId(1);
+		inventoryResponseModel1.setInventoryId(101);
+		inventoryResponseModel1.setRateRoom(500.0);
+		inventoryResponseModel1.setRoomId(1);
+		inventoryResponseModel1.setStayDate(myFormat.parse("01-02-2021"));
 		
+		InventoryResponseModel inventoryResponseModel2 = new InventoryResponseModel();
+		inventoryResponseModel2.setHotelId(1);
+		inventoryResponseModel2.setInventoryId(101);
+		inventoryResponseModel2.setRateRoom(500.0);
+		inventoryResponseModel2.setRoomId(1);
+		inventoryResponseModel2.setStayDate(myFormat.parse("01-02-2021"));
+		response.setResponseModel(Arrays.asList(inventoryResponseModel1, inventoryResponseModel2));
+		
+
+		//Inventory response model
+		doReturn(response).when(hotelInfoServiceProxy).getInventoryDetails(any(InventoryRequestModel.class));
 		doReturn(reservation1).when(reservationRepository).save(any(Reservation.class));
+		doReturn(response).when(hotelInfoServiceProxy).updateInventory(any(InventoryRequestModel.class));
 		ReservationDataModel savedReservation = reservationService.bookReservation(requestReservationDataModel);
 		assertNotNull(savedReservation);
+	}
+	
+	@Test
+	void cancelReservation_ShouldCancelReservation() throws ParseException {
+		SimpleDateFormat myFormat = new SimpleDateFormat("dd-MM-yyyy");
+		InventoryDetailsResponseModel response = new InventoryDetailsResponseModel();
+		InventoryResponseModel inventoryResponseModel1 = new InventoryResponseModel();
+		inventoryResponseModel1.setHotelId(1);
+		inventoryResponseModel1.setInventoryId(101);
+		inventoryResponseModel1.setRateRoom(500.0);
+		inventoryResponseModel1.setRoomId(1);
+		inventoryResponseModel1.setStayDate(myFormat.parse("01-02-2021"));
+		
+		InventoryResponseModel inventoryResponseModel2 = new InventoryResponseModel();
+		inventoryResponseModel2.setHotelId(1);
+		inventoryResponseModel2.setInventoryId(101);
+		inventoryResponseModel2.setRateRoom(500.0);
+		inventoryResponseModel2.setRoomId(1);
+		inventoryResponseModel2.setStayDate(myFormat.parse("01-02-2021"));
+		response.setResponseModel(Arrays.asList(inventoryResponseModel1, inventoryResponseModel2));
+		
+		Reservation reservation1 = getMockedReservation("CancelReservation").get(0);
+		given(reservationRepository.findById(1)).willReturn(Optional.of(reservation1));
+		doReturn(reservation1).when(reservationRepository).save(any(Reservation.class));
+		doReturn(response).when(hotelInfoServiceProxy).updateInventory(any(InventoryRequestModel.class));
+		ReservationDataModel expectedReservation = reservationService.cancelReservation(1);
+		assertEquals(ReservationServiceConstant.CANCELLED, expectedReservation.getState());
 	}
 	
 	private List<Reservation> getMockedReservation(String methodType) throws ParseException{
