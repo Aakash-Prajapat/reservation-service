@@ -44,12 +44,6 @@ public class ReservationDataModel {
 				.map(ReservationLineDetailsDataModel::new).collect(Collectors.toList());
 		this.state = reservation.getState();
 	}
-
-	public ReservationDataModel(Integer reservationId, Integer hotelId, Integer guestId) {
-		this.reservationId = reservationId;
-		this.hotelId = hotelId;
-		this.guestId = guestId;
-	}
 	
 	public Integer getReservationId() {
 		return reservationId;

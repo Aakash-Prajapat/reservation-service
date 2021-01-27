@@ -1,6 +1,8 @@
 
 package com.epam.incubation.service.reservationbooking.entities;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,7 +14,12 @@ import javax.validation.constraints.Email;
 import com.epam.incubation.service.reservationbooking.datamodel.GuestDetailsDataModel;
 
 @Entity
-public class GuestDetails {
+public class GuestDetails implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 101122120L;
 
 	@Id
 	@Column(name = "GUEST_ID")

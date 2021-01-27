@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,7 @@ import com.epam.incubation.service.reservationbooking.datamodel.PaymentDetailsDa
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationDataModel;
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationLineDetailsRequestModel;
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationRequestModel;
+import com.epam.incubation.service.reservationbooking.datamodel.TransactionDetails;
 import com.epam.incubation.service.reservationbooking.entities.GuestDetails;
 import com.epam.incubation.service.reservationbooking.entities.InventoryDetails;
 import com.epam.incubation.service.reservationbooking.entities.PaymentDetails;
@@ -36,6 +39,7 @@ import com.epam.incubation.service.reservationbooking.entities.Reservation;
 import com.epam.incubation.service.reservationbooking.entities.ReservationLineDetails;
 import com.epam.incubation.service.reservationbooking.exception.RecordNotFoundException;
 import com.epam.incubation.service.reservationbooking.facade.HotelInfoServiceProxy;
+import com.epam.incubation.service.reservationbooking.facade.PaymentServiceProxy;
 import com.epam.incubation.service.reservationbooking.repository.ReservationRepository;
 import com.epam.incubation.service.reservationbooking.requestmodel.InventoryRequestModel;
 import com.epam.incubation.service.reservationbooking.responsemodel.InventoryDetailsResponseModel;
@@ -48,10 +52,14 @@ class ReservationServiceImplTest {
 	private ReservationRepository reservationRepository;
 
 	@InjectMocks
+	@Spy
 	private ReservationServiceImpl reservationService;
 	
 	@Mock
 	HotelInfoServiceProxy hotelInfoServiceProxy;
+	
+	@Mock
+	PaymentServiceProxy paymentServiceProxy;
 
 	@Test
 	void getReservation_ShouldReturnReservation() throws ParseException {
@@ -168,7 +176,8 @@ class ReservationServiceImplTest {
 		inventoryResponseModel2.setStayDate(myFormat.parse("01-02-2021"));
 		response.setResponseModel(Arrays.asList(inventoryResponseModel1, inventoryResponseModel2));
 		
-
+		lenient().doReturn("Success").when(reservationService).doPayment(12121212L, 1000.0);
+		lenient().doReturn("Success").when(paymentServiceProxy).doPayment(new TransactionDetails(12121212L, 1000.0));
 		//Inventory response model
 		doReturn(response).when(hotelInfoServiceProxy).getInventoryDetails(any(InventoryRequestModel.class));
 		doReturn(reservation1).when(reservationRepository).save(any(Reservation.class));
@@ -198,6 +207,8 @@ class ReservationServiceImplTest {
 		
 		Reservation reservation1 = getMockedReservation("CancelReservation").get(0);
 		given(reservationRepository.findById(1)).willReturn(Optional.of(reservation1));
+		//lenient().doReturn("Success").when(reservationService).creditTrasaction(12121212L, 1000.0);
+		lenient().doReturn("Success").when(paymentServiceProxy).creditTransaction(new TransactionDetails(12121212L, 1000.0));
 		doReturn(reservation1).when(reservationRepository).save(any(Reservation.class));
 		doReturn(response).when(hotelInfoServiceProxy).updateInventory(any(InventoryRequestModel.class));
 		ReservationDataModel expectedReservation = reservationService.cancelReservation(1);

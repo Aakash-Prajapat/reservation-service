@@ -1,14 +1,13 @@
 
 package com.epam.incubation.service.reservationbooking.entities;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -16,7 +15,12 @@ import javax.persistence.OneToOne;
 import com.epam.incubation.service.reservationbooking.datamodel.PaymentDetailsDataModel;
 
 @Entity
-public class PaymentDetails {
+public class PaymentDetails implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 10002120L;
 
 	@Id
 	@Column(name = "PAYMENT_ID")

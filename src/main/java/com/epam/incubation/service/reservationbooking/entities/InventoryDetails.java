@@ -1,6 +1,7 @@
 
 package com.epam.incubation.service.reservationbooking.entities;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -13,7 +14,12 @@ import javax.persistence.ManyToOne;
 import com.epam.incubation.service.reservationbooking.datamodel.InventoryDetailsDataModel;
 
 @Entity
-public class InventoryDetails {
+public class InventoryDetails implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 100021221210L;
 
 	@Id
 	@Column(name = "RESERVATION_INVENTORY_ID")

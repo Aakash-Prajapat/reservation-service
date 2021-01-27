@@ -1,6 +1,7 @@
 
 package com.epam.incubation.service.reservationbooking.entities;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +19,12 @@ import javax.persistence.OneToMany;
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationLineDetailsDataModel;
 
 @Entity
-public class ReservationLineDetails {
+public class ReservationLineDetails implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 12102120L;
 
 	@Id
 	@Column(name = "RESERVATION_LINE_ID")

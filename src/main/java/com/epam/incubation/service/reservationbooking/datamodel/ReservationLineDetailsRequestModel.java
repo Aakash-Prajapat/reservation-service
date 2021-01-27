@@ -16,6 +16,14 @@ public class ReservationLineDetailsRequestModel {
 	private List<GuestDetailsRequestModel> guestList;
 	private List<InventoryDetailsDataModel> inventoriesDetails;
 
+	public List<InventoryDetailsDataModel> getInventoriesDetails() {
+		return inventoriesDetails;
+	}
+
+	public void setInventoriesDetails(List<InventoryDetailsDataModel> inventoriesDetails) {
+		this.inventoriesDetails = inventoriesDetails;
+	}
+
 	public Integer getRoomId() {
 		return roomId;
 	}
@@ -46,13 +54,5 @@ public class ReservationLineDetailsRequestModel {
 
 	public void setGuestList(List<GuestDetailsRequestModel> guestList) {
 		this.guestList = guestList;
-	}
-
-	public List<InventoryDetailsDataModel> getInventoriesDetails() {
-		return inventoriesDetails;
-	}
-
-	public void setInventoriesDetails(List<InventoryDetailsDataModel> inventoriesDetails) {
-		this.inventoriesDetails = inventoriesDetails;
 	}
 }

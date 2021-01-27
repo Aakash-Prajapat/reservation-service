@@ -17,7 +17,7 @@ public class ReservationRequestModel {
 	private Date checkOutDate;
 	private PaymentDetailsDataModel paymentsDetails;
 	private List<ReservationLineDetailsRequestModel> reservationLineDetails;
-
+	
 	public Integer getGuestId() {
 		return guestId;
 	}

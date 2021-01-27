@@ -11,4 +11,6 @@ import com.epam.incubation.service.reservationbooking.entities.Reservation;
 public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
 
 	public List<Reservation> getReservationByHotelId(Integer id);
+	
+	public List<Reservation> getReservationsByGuestId(Integer id);
 }

@@ -1,0 +1,14 @@
+com.epam.incubation.service.reservationbooking
+com.epam.incubation.service.reservationbooking.config
+com.epam.incubation.service.reservationbooking.constant
+com.epam.incubation.service.reservationbooking.datamodel
+com.epam.incubation.service.reservationbooking.entities
+com.epam.incubation.service.reservationbooking.exception
+com.epam.incubation.service.reservationbooking.facade
+com.epam.incubation.service.reservationbooking.filter
+com.epam.incubation.service.reservationbooking.repository
+com.epam.incubation.service.reservationbooking.requestmodel
+com.epam.incubation.service.reservationbooking.resource
+com.epam.incubation.service.reservationbooking.responsemodel
+com.epam.incubation.service.reservationbooking.service
+com.epam.incubation.service.reservationbooking.util

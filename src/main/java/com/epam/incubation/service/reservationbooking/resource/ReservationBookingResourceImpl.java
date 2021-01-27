@@ -4,7 +4,10 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,51 +18,50 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationDataModel;
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationRequestModel;
+import com.epam.incubation.service.reservationbooking.datamodel.UserReservationDataResponse;
 import com.epam.incubation.service.reservationbooking.service.ReservationServiceImpl;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 @RestController
-@RequestMapping("/api/v1")
-@Api(value = "Booking Reservation Service")
+@RequestMapping("/reservationservice")
 public class ReservationBookingResourceImpl implements ReservationBookingResource {
 
+	private final Logger logger = LoggerFactory.getLogger(ReservationBookingResourceImpl.class);
+	
 	@Autowired
 	private ReservationServiceImpl reservationService;
 
-	@PostMapping("/reservationservice")
-	@ApiOperation(value = "Book Reservation")
-	public ReservationDataModel bookReservation(
-			@ApiParam(value = "Reservation store in database", required = true) @Valid @RequestBody ReservationRequestModel reservation) {
+	@PostMapping("/book")
+	@PreAuthorize("hasRole('GUEST')")
+	public ReservationDataModel bookReservation(@Valid @RequestBody ReservationRequestModel reservation) {
+		logger.info("booking reservation api calling service for book the reservation");
 		return reservationService.bookReservation(reservation);
-}
+	}
 
-	@DeleteMapping("/reservationservice/{id}")
-	@ApiOperation(value="Cancle Reservation by Id")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved"),
-			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found") })
+	@DeleteMapping("/cancelreservation/{id}")
+	@PreAuthorize("hasRole('GUEST')")
 	public ReservationDataModel cancelReservation(@PathVariable(name = "id") Integer reservatonId) {
+		logger.info("cancelling reservation api calling service for cancel the reservation");
 		return reservationService.cancelReservation(reservatonId);
 	}
 
-	@GetMapping(value = "/reservationservice/{id}")
-	@ApiOperation(value = "Get Reservation Details by Id")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved"),
-			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found") })
+	@GetMapping(value = "/getreservation/{id}")
+	@PreAuthorize("hasRole('GUEST')")
 	public ReservationDataModel getReservation(@PathVariable(name = "id") Integer id) {
+		logger.info("Fetching the reservation by id");
 		return reservationService.getReservation(id);
 	}
 
-	@GetMapping(value = "/reservationservice/reservationByHotelId/{id}")
-	@ApiOperation(value = "Get All Reservation by Hotel Id")
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved"),
-			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found") })
+	@GetMapping(value = "/getreservationsByHotelId/{id}")
+	@PreAuthorize("hasRole('GUEST')")
 	public List<ReservationDataModel> getReservationByHotelId(@PathVariable(name = "id") Integer hotelId) {
+		logger.info("Fetching the reservation by hotel id");
 		return reservationService.getReservationByHotelId(hotelId);
 	}
 
+	@GetMapping(value = "/guestreservationshistory/{id}")
+	@PreAuthorize("hasRole('GUEST')")
+	public UserReservationDataResponse getGuestReservationHistory(@PathVariable(name = "id") Integer guestId) {
+		logger.info("Fetching the guest history by id");
+		return reservationService.getGuestReservationHisotry(guestId);
+	}
 }

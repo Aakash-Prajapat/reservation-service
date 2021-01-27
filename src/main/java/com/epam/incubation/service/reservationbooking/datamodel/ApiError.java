@@ -8,7 +8,6 @@ import org.springframework.validation.FieldError;
 public class ApiError {
 	private HttpStatus status;
 	private String message;
-	private String details;
 	private List<FieldError> subErrors;
 
 	public ApiError() {
@@ -19,35 +18,6 @@ public class ApiError {
 		this.status = status;
 	}
 
-	public ApiError(HttpStatus status, Throwable ex) {
-		this();
-		this.status = status;
-		this.message = "Unexpected error";
-		this.details = ex.getLocalizedMessage();
-	}
-
-	public ApiError(HttpStatus status, String message, Throwable ex) {
-		this();
-		this.status = status;
-		this.message = message;
-		this.details = ex.getLocalizedMessage();
-	}
-
-	public ApiError(HttpStatus status, String message, String details, List<FieldError> list) {
-		this();
-		this.status = status;
-		this.message = message;
-		this.details = details;
-		this.subErrors = list;
-	}
-
-	public ApiError(HttpStatus status, String message, String details) {
-		this();
-		this.status = status;
-		this.message = message;
-		this.details = details;
-	}
-
 	public ApiError(HttpStatus status, String message, List<FieldError> subErrors) {
 		this();
 		this.status = status;
@@ -55,6 +25,12 @@ public class ApiError {
 		this.subErrors = subErrors;
 	}
 
+	public ApiError(HttpStatus status, String message) {
+		this();
+		this.status = status;
+		this.message = message;
+	}
+	
 	public HttpStatus getStatus() {
 		return status;
 	}
@@ -70,14 +46,6 @@ public class ApiError {
 
 	public void setMessage(String message) {
 		this.message = message;
-	}
-
-	public String getDetails() {
-		return details;
-	}
-
-	public void setDetails(String details) {
-		this.details = details;
 	}
 
 	public List<FieldError> getSubErrors() {
