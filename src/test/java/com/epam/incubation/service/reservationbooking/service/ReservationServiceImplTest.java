@@ -60,6 +60,9 @@ class ReservationServiceImplTest {
 	
 	@Mock
 	PaymentServiceProxy paymentServiceProxy;
+	
+	@Mock
+	PaymentServiceImpl paymentServiceImpl;
 
 	@Test
 	void getReservation_ShouldReturnReservation() throws ParseException {
@@ -176,8 +179,7 @@ class ReservationServiceImplTest {
 		inventoryResponseModel2.setStayDate(myFormat.parse("01-02-2021"));
 		response.setResponseModel(Arrays.asList(inventoryResponseModel1, inventoryResponseModel2));
 		
-		lenient().doReturn("Success").when(reservationService).doPayment(12121212L, 1000.0);
-		lenient().doReturn("Success").when(paymentServiceProxy).doPayment(new TransactionDetails(12121212L, 1000.0));
+		lenient().doReturn("Success").when(paymentServiceImpl).doPayment(12121212L, 1000.0);
 		//Inventory response model
 		doReturn(response).when(hotelInfoServiceProxy).getInventoryDetails(any(InventoryRequestModel.class));
 		doReturn(reservation1).when(reservationRepository).save(any(Reservation.class));

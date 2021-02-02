@@ -6,6 +6,7 @@ import com.epam.incubation.service.reservationbooking.datamodel.ReservationDataM
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationRequestModel;
 import com.epam.incubation.service.reservationbooking.datamodel.UserReservationDataResponse;
 import com.epam.incubation.service.reservationbooking.exception.RecordNotFoundException;
+import com.epam.incubation.service.reservationbooking.responsemodel.ReservationApiResponse;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -76,5 +77,5 @@ public interface ReservationBookingResource {
 	@ApiOperation(value = "Get All Reservation by Guest Id")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved"),
 			@ApiResponse(code = 404, message = "The resource you were trying to reach is not found") })
-	public UserReservationDataResponse getGuestReservationHistory(Integer guestId);
+	public ReservationApiResponse<UserReservationDataResponse> getGuestReservationHistory(Integer guestId);
 }

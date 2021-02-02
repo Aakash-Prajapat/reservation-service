@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationDataModel;
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationRequestModel;
 import com.epam.incubation.service.reservationbooking.datamodel.UserReservationDataResponse;
+import com.epam.incubation.service.reservationbooking.responsemodel.ReservationApiResponse;
 import com.epam.incubation.service.reservationbooking.service.ReservationServiceImpl;
 
 @RestController
@@ -60,7 +61,7 @@ public class ReservationBookingResourceImpl implements ReservationBookingResourc
 
 	@GetMapping(value = "/guestreservationshistory/{id}")
 	@PreAuthorize("hasRole('GUEST')")
-	public UserReservationDataResponse getGuestReservationHistory(@PathVariable(name = "id") Integer guestId) {
+	public ReservationApiResponse<UserReservationDataResponse> getGuestReservationHistory(@PathVariable(name = "id") Integer guestId) {
 		logger.info("Fetching the guest history by id");
 		return reservationService.getGuestReservationHisotry(guestId);
 	}

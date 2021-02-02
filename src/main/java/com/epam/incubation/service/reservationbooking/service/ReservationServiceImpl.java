@@ -18,18 +18,16 @@ import com.epam.incubation.service.reservationbooking.datamodel.InventoryDetails
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationDataModel;
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationLineDetailsDataModel;
 import com.epam.incubation.service.reservationbooking.datamodel.ReservationRequestModel;
-import com.epam.incubation.service.reservationbooking.datamodel.TransactionDetails;
 import com.epam.incubation.service.reservationbooking.datamodel.UserReservationData;
 import com.epam.incubation.service.reservationbooking.datamodel.UserReservationDataResponse;
 import com.epam.incubation.service.reservationbooking.entities.Reservation;
 import com.epam.incubation.service.reservationbooking.exception.InventoryNotAvailableException;
 import com.epam.incubation.service.reservationbooking.exception.RecordNotFoundException;
 import com.epam.incubation.service.reservationbooking.facade.HotelInfoServiceProxy;
-import com.epam.incubation.service.reservationbooking.facade.PaymentServiceProxy;
 import com.epam.incubation.service.reservationbooking.repository.ReservationRepository;
 import com.epam.incubation.service.reservationbooking.requestmodel.InventoryRequestModel;
 import com.epam.incubation.service.reservationbooking.responsemodel.InventoryDetailsResponseModel;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.epam.incubation.service.reservationbooking.responsemodel.ReservationApiResponse;
 
 import brave.sampler.Sampler;
 
@@ -48,7 +46,7 @@ public class ReservationServiceImpl implements ReservationService {
 	HotelInfoServiceProxy hotelInfoServiceProxy;
 
 	@Autowired
-	PaymentServiceProxy paymentServiceProxy;
+	PaymentServiceImpl paymentService;
 
 	@Autowired
 	ReservationServiceImpl service;
@@ -87,7 +85,8 @@ public class ReservationServiceImpl implements ReservationService {
 		logger.info("Receiving the hotel service for inventory availability");
 
 		logger.info("Calling the Payment service payments");
-		String paymentTransaction = doPayment(requestReservationDataModel.getPaymentsDetails().getCreditCardNumber(),
+		String paymentTransaction = paymentService.doPayment(
+				requestReservationDataModel.getPaymentsDetails().getCreditCardNumber(),
 				requestReservationDataModel.getTotalAmount());
 		logger.info("Payment done with status {}", paymentTransaction);
 		logger.info("Confirming the reservation");
@@ -121,12 +120,11 @@ public class ReservationServiceImpl implements ReservationService {
 			logger.info("canecelling the reservation");
 			Reservation savedReservation = reservationRepository.save(reservation.get());
 			logger.info("calling payment service for credit transaction");
-			/*
-			 * String paymentTransaction =
-			 * creditTrasaction(savedReservation.getPaymentsDetails().getCreditCardNumber(),
-			 * savedReservation.getTotalAmount());
-			 * logger.info("Response from payment service {}",paymentTransaction);
-			 */
+
+			String paymentTransaction = paymentService.creditTrasaction(
+					savedReservation.getPaymentsDetails().getCreditCardNumber(), savedReservation.getTotalAmount());
+			logger.info("Response from payment service {}", paymentTransaction);
+
 			// update the inventory
 			InventoryRequestModel inventoryRequestModel = new InventoryRequestModel();
 			inventoryRequestModel.setCheckInDate(savedReservation.getCheckInDate());
@@ -152,7 +150,7 @@ public class ReservationServiceImpl implements ReservationService {
 	public ReservationDataModel getReservation(Integer id) {
 		logger.info("Fetching reservation by id");
 		Optional<Reservation> reservation = reservationRepository.findById(id);
-		if (reservation.isEmpty())
+		if (!reservation.isPresent())
 			throw new RecordNotFoundException("Reservation not found with" + id);
 		return new ReservationDataModel(reservation.get());
 	}
@@ -225,42 +223,25 @@ public class ReservationServiceImpl implements ReservationService {
 	 * @param guestId , Id to which reservation information get fetched.
 	 * @return UserReservationDataResponse, Holds reservation information.
 	 */
-	public UserReservationDataResponse getGuestReservationHisotry(Integer guestId) {
+	public ReservationApiResponse<UserReservationDataResponse> getGuestReservationHisotry(Integer guestId) {
 		UserReservationDataResponse response = new UserReservationDataResponse();
 		logger.info("Fetching reservation by guest id");
 		List<Reservation> reservations = reservationRepository.getReservationsByGuestId(guestId);
-		if (reservations.isEmpty()) {
-			response.setError(new ApiError(HttpStatus.NOT_FOUND, "Reservation is not present with "+guestId));
-		} else {
-			response.setReservations(reservations.stream().map(UserReservationData::new).collect(Collectors.toList()));
-			
-		}
-		return response;
-	}
-
-	@HystrixCommand(fallbackMethod = "doPaymentFallback")
-	public String doPayment(Long cardNumber, double amount) {
-		return paymentServiceProxy.doPayment(new TransactionDetails(cardNumber, amount));
-	}
-
-	public String doPaymentFallback(Long cardNumber, double amount) {
-		logger.info("In fall back of do payment with {} {}", cardNumber, amount);
-		return "success";
-	}
-
-	@HystrixCommand(fallbackMethod = "creditTrasactioFallback")
-	public String creditTrasaction(Long cardNumber, double amount) {
-		return paymentServiceProxy.creditTransaction(new TransactionDetails(cardNumber, amount));
-	}
-
-	public String creditTrasactioFallback(Long cardNumber, double amount) {
-		logger.info("In fall back of credit transaction with {} {}", cardNumber, amount);
-		return "success";
+		if (reservations.isEmpty())
+			return generateReservationApiResponse(null, HttpStatus.NOT_FOUND,
+					new ApiError(HttpStatus.NOT_FOUND, "Reservations not found with guest " + guestId));
+		response.setReservations(reservations.stream().map(UserReservationData::new).collect(Collectors.toList()));
+		return generateReservationApiResponse(response, HttpStatus.OK, null);
 	}
 
 	@Bean
 	public Sampler defaultSampler() {
 		return Sampler.ALWAYS_SAMPLE;
+	}
+
+	private <T> ReservationApiResponse<T> generateReservationApiResponse(T actualData, HttpStatus status,
+			ApiError error) {
+		return new ReservationApiResponse(actualData, status, error);
 	}
 
 }
